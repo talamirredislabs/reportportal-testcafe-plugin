@@ -8,6 +8,7 @@ class API {
             baseURL: `${options.protocol}://${options.domain}${options.apiPath}`,
             headers: { 'Content-type': 'application/json', 'Authorization': `Bearer ${options.token}` }
         });
+        this.debug = options.debug;
     }
 
     async checkConnect () {
@@ -96,6 +97,15 @@ class API {
 
     handleResponse (response) {
         return response.data;
+    }
+
+    log (level, message) {
+        if (level === 'info')
+            console.log(message);
+        if (level === 'debug')
+            console.debug(message);
+        if (level === 'error')
+            console.error(message);
     }
 }
 

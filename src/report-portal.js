@@ -1,8 +1,12 @@
+/* eslint-disable no-unneeded-ternary */
 const RPClient = require('./api');
 const Arguments = require('cli-argument-parser').cliArguments;
+const FilterArguments = require('cli-argument-parser').filterArguments;
 
 class ReportPortal { 
     constructor () {
+        const uniqueArguments = FilterArguments('--', '');
+
         if (!Arguments.rdomain)
             throw new Error('Missing argument --rdomain');
         if (!Arguments.rtoken)
@@ -11,12 +15,14 @@ class ReportPortal {
             throw new Error('Missing argument --rlaunch/--rlaunch-id');
         if (!Arguments.rproject)
             throw new Error('Missing argument --rproject');
-        
+            
+        this.debug = uniqueArguments.rdebug ? true : false; 
         this.client = new RPClient({
             protocol: 'https',
             domain:   Arguments.rdomain,
             apiPath:  '/api/v1',
             token:    Arguments.rtoken,
+            debug:    this.debug
         });
         this.connected = true;
         this.launchName = Arguments.rlaunch;
@@ -32,6 +38,7 @@ class ReportPortal {
      */
     async verifyConnection () {
         try {
+            this.client.log('debug', 'Starting a connection to the report portal');
             await this.client.checkConnect();
             this.connected = true;
         } 
@@ -59,6 +66,8 @@ class ReportPortal {
             this.launch = { id: Arguments['rlaunch-id'] };
         if (this.suiteName)
             await this.startSuite(this.suiteName);
+        this.client.log('debug', this.launch);
+        this.client.log('debug', this.suite);
     }
 
     /**
