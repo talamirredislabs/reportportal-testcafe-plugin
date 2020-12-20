@@ -1,9 +1,8 @@
 /* eslint-disable no-undefined */
 import Axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import fs from 'fs';
+import { readFileSync } from 'fs';
 
 export class API {
-    options: Options
     baseURL: string
     token: string
     headers: {[key: string]: any}
@@ -168,7 +167,7 @@ export class API {
                 await instance.post(`${this.baseURL}/${projectName}/log`, this.buildMultiPartStream([options], {
                     name:    options.file.name,
                     type:    'image/png',
-                    content: fs.readFileSync(fullPath)
+                    content: readFileSync(fullPath)
                 }, MULTIPART_BOUNDARY));
             }
             else this.handleResponse(await this.client.post(`/${projectName}/log`, options));
@@ -322,7 +321,7 @@ export type CreateLogParameters = {
     itemUuid?: string,
     launchUuid: string,
     level?: LogLevel,
-    message?: string,
+    message: string,
     time: string,
     uuid?: string
 }

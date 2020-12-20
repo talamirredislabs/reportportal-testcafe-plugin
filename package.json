@@ -5,7 +5,6 @@
   "repository": "https://github.com/danitseitlin/testcafe-reporter-reportportal-plugin",
   "author": {
     "name": "Dani Tseitlin",
-    "email": "dani.tseitlin@gmail.com",
     "url": "https://github.com/danitseitlin"
   },
   "main": "lib/index",
@@ -13,6 +12,7 @@
     "lib"
   ],
   "scripts": {
+    "build2": "tsc",
     "build": "gulp build",
     "test": "gulp test",
     "setup": "npm run build && npm link testcafe-reporter-reportportal-plugin"
@@ -25,8 +25,8 @@
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.3.4",
-    "@babel/preset-env": "^7.3.4",
     "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
     "babel-eslint": "^10.0.1",
     "callsite-record": "^3.2.0",
     "del": "^1.2.0",
@@ -36,11 +36,13 @@
     "gulp-mocha": "^6.0.0",
     "normalize-newline": "^1.0.2",
     "read-file-relative": "^1.2.0",
-    "testcafe": "^1.0.1"
+    "testcafe": "^1.0.1",
+    "ts-node": "^9.1.1"
   },
   "dependencies": {
     "axios": "^0.21.0",
     "cli-argument-parser": "^0.3.4",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "typescript": "^4.1.3"
   }
 }
