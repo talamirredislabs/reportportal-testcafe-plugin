@@ -1,10 +1,10 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-undefined */
-const RP = require('./report-portal');
-import { LogLevel, TestItemStatus } from './api';
-import { ReportPortal } from './report-portal';
+//const RP = require('./report-portal');
+import * as API from './api';
+import * as ReportPortal from './report-portal';
 exports['default'] = () => {
-    const client = new ReportPortal();
+    //const this.client = new ReportPortal();
     let logs: any[];
     return {
         async reportTaskStart (startTime: any, userAgents: any[], testCount: any) {
@@ -21,8 +21,8 @@ exports['default'] = () => {
                     .write(`- ${this.chalk.blue(ua)}`)
                     .newline();
             });
-            
-            await client.startLaunch();
+            this.client = new ReportPortal.ReportPortal();
+            await this.client.startLaunch();
         },
 
         async reportFixtureStart (name: any, /*path, meta*/) {
@@ -40,9 +40,9 @@ exports['default'] = () => {
                 .newline();
         },
         async reportTestStart ( name: string /*, meta */) {
-            await client.startTest(name);
+            await this.client.startTest(name);
             logs = [];
-            console.log = function (d: string, rp = client) {
+            console.log = function (d: string, rp = this.client) {
                 logs.push({ type: 'info', log: d, time: new Date().valueOf() });
                 process.stdout.write(d + '\n');
             };
@@ -96,7 +96,7 @@ exports['default'] = () => {
             if (hasErrors)
                 this._renderErrors(testRunInfo.errs);
 
-            const result: TestItemStatus = testRunInfo.skipped ? 'SKIPPED' : hasErrors ? 'FAILED' : 'PASSED';
+            const result: API.TestItemStatus = testRunInfo.skipped ? 'SKIPPED' : hasErrors ? 'FAILED' : 'PASSED';
 
             this.afterErrorList = hasErrors;
 
@@ -107,17 +107,17 @@ exports['default'] = () => {
                 });
             }
             logs.push({ type: 'debug', log: `Test ${name} has ended...`, time: new Date().valueOf() });
-            logs.forEach(async (item: { log: string; type: LogLevel; time: string; file: { name: string; }; }) => {
+            logs.forEach(async (item: { log: string; type: API.LogLevel; time: string; file: { name: string; }; }) => {
                 try {
                     if (item.log !== undefined)
                         item.log = item.log.indexOf('{') !== -1 && item.log.indexOf('}') !== -1 ? JSON.stringify(item.log) : item.log;
-                    await client.sendTestLogs(client.test.id, item.type, item.log, item.time, item.file);
+                    await this.client.sendTestLogs(this.client.test.id, item.type, item.log, item.time, item.file);
                 } 
                 catch (error) {
-                    client.client.handleError(error);
+                    this.client.this.client.handleError(error);
                 }
             });
-            await client.finishTest(client.test.id, result);
+            await this.client.finishTest(this.client.test.id, result);
         },
 
         async reportTaskDone (endTime: number, passed: number, warnings: string | any[]) {
@@ -142,7 +142,7 @@ exports['default'] = () => {
 
             if (warnings.length)
                 this._renderWarnings(warnings);
-            await client.finishLaunch();
+            await this.client.finishLaunch();
         },
         _renderErrors (errs: any[]) {
             this.setIndent(3)

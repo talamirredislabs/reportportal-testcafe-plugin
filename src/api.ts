@@ -1,6 +1,6 @@
 /* eslint-disable no-undefined */
 import Axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import fs from 'fs';
+import * as fs from 'fs';
 
 export class API {
     options: Options

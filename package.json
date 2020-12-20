@@ -8,12 +8,13 @@
     "email": "dani.tseitlin@gmail.com",
     "url": "https://github.com/danitseitlin"
   },
-  "main": "lib/index",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "files": [
     "lib"
   ],
   "scripts": {
-    "build": "gulp build",
+    "build": "tsc",
     "test": "gulp test",
     "setup": "npm run build && npm link testcafe-reporter-reportportal-plugin"
   },
