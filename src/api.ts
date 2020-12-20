@@ -27,7 +27,7 @@ export class API {
             return this.handleResponse(await this.client.get('/user'));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -36,12 +36,12 @@ export class API {
      * @param {*} projectName The name of the project
      * @param {*} options The options of the launch
      */
-    async createLaunch (projectName: string, options: CreateLaunchParameters) {
+    async createLaunch (projectName: string, options: CreateLaunchParameters): Promise<CreateLaunchResponse> {
         try {
             return this.handleResponse(await this.client.post(`/${projectName}/launch`, options));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -51,12 +51,12 @@ export class API {
      * @param {*} launchId The id of the launch
      * @param {*} options The options of the launch
      */
-    async finishLaunch (projectName: string, launchId: string, options: FinishLaunchParameters) {
+    async finishLaunch (projectName: string, launchId: string, options: FinishLaunchParameters): Promise<FinishLaunchResponse> {
         try {
             return this.handleResponse(await this.client.put(`/${projectName}/launch/${launchId}/finish`, options));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -66,12 +66,12 @@ export class API {
      * @param {*} launchId The id of the launch
      * @param {*} options The options of the launch
      */
-    async forceStopLaunch (projectName: string, launchId: string, options: FinishLaunchParameters) {
+    async forceStopLaunch (projectName: string, launchId: string, options: FinishLaunchParameters): Promise<OperationCompletionRS> {
         try {
             return this.handleResponse(await this.client.put(`/${projectName}/launch/${launchId}/stop`, options));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -80,12 +80,12 @@ export class API {
      * @param {*} projectName The name of the project 
      * @param {*} options The options of the launch
      */
-    async createTestItem (projectName: string, options: CreateTestItemParameters) {
+    async createTestItem (projectName: string, options: CreateTestItemParameters): Promise<EntryCreatedAsyncRS> {
         try {
             return this.handleResponse(await this.client.post(`/${projectName}/item`, options));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -95,12 +95,12 @@ export class API {
      * @param {*} parentItemId The parent item of the test item
      * @param {*} options The options of the child test item
      */
-    async createChildTestItem (projectName: string, parentItemId: string, options: CreateTestItemParameters) {
+    async createChildTestItem (projectName: string, parentItemId: string, options: CreateTestItemParameters): Promise<EntryCreatedAsyncRS> {
         try {
             return this.handleResponse(await this.client.post(`/${projectName}/item/${parentItemId}`, options));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -110,12 +110,12 @@ export class API {
      * @param {*} testItemId The id of the test item
      * @param {*} options The options of the test item
      */
-    async finishTestItem (projectName: string, testItemId: string, options: FinishTestItemParameters) {
+    async finishTestItem (projectName: string, testItemId: string, options: FinishTestItemParameters): Promise<OperationCompletionRS> {
         try {
             return this.handleResponse(await this.client.put(`/${projectName}/item/${testItemId}`, options));
         }
         catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
         }
     }
 
@@ -125,7 +125,7 @@ export class API {
      * @param {*} filePart The file
      * @param {*} boundary The boundary
      */
-    buildMultiPartStream (jsonPart: CreateLogParameters[], filePart: {name: string, type: string, content: any }, boundary: string) {
+    buildMultiPartStream (jsonPart: CreateLogParameters[], filePart: {name: string, type: string, content: any }, boundary: string): Buffer {
         const eol = '\r\n';
         const bx = `--${boundary}`;
         const buffers = [
@@ -154,7 +154,7 @@ export class API {
      * @param {*} projectName The name of the project
      * @param {*} options The options of the log item
      */
-    async sendLog (projectName: string, options: CreateLogParameters) {
+    async sendLog (projectName: string, options: CreateLogParameters): Promise<EntryCreatedAsyncRS> {
         try {
             options.message = this.isJSON(options.message) || Array.isArray(options.message) ? JSON.stringify(options.message) : options.message;
             if (options.file) {
@@ -165,7 +165,7 @@ export class API {
                     headers: { 'Content-type': `multipart/form-data; boundary=${MULTIPART_BOUNDARY}`, 'Authorization': `Bearer ${this.token}` }
                 });
                 
-                await instance.post(`${this.baseURL}/${projectName}/log`, this.buildMultiPartStream([options], {
+                return await instance.post(`${this.baseURL}/${projectName}/log`, this.buildMultiPartStream([options], {
                     name:    options.file.name,
                     type:    'image/png',
                     content: fs.readFileSync(fullPath)
@@ -242,6 +242,11 @@ export type CreateLaunchParameters = {
     [key: string]: any
 }
 
+export type CreateLaunchResponse = {
+    id: string,
+    number?: number
+}
+
 /**
  * The launch finish parameters
  */
@@ -251,6 +256,12 @@ export type FinishLaunchParameters = {
     endTime: number,
     status?: TestItemStatus
 }
+
+export interface FinishLaunchResponse extends CreateLaunchParameters {
+    link: string
+}
+
+export type OperationCompletionRS = { message: string }
 
 /**
  * The item attribute object
@@ -279,14 +290,16 @@ export type CreateTestItemParameters = {
     hasStats?: boolean,
     launchUuid: string,
     name: string,
-    parameters: ItemParameter[],
+    parameters?: ItemParameter[],
     retry?: boolean,
     retryOf?: string,
     startTime?: string,
-    testCaseId: string,
+    testCaseId?: string,
     type: TestItemType,
     uniqueId?: string
 }
+
+export type EntryCreatedAsyncRS = { id: string }
 
 /**
  * The test item finish parameters
@@ -294,7 +307,7 @@ export type CreateTestItemParameters = {
 export type FinishTestItemParameters = {
     attributes?: ItemAttribute[],
     endTime: number,
-    issue: {
+    issue?: {
         autoAnalyzed?: boolean,
         comment?: string,
         externalSystemIssues: {
