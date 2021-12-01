@@ -12,14 +12,25 @@
     "lib"
   ],
   "scripts": {
-    "build": "gulp build",
+    "build": "babel src -d lib",
     "test": "mocha -r ts-node/register",
+    "lint": "eslint .",
+    "jshint": "jshint src",
+    "get-report-portal-docker-compose": "curl https://raw.githubusercontent.com/reportportal/reportportal/master/docker-compose.yml -o docker-compose.yml",
+    "start-report-portal-server": "docker-compose -p reportportal up",
+    "unlink-pkg": "npm unlink --no-save testcafe-reporter-reportportal-plugin",
+    "link-pkg": "npm link && npm link testcafe-reporter-reportportal-plugin",
+    "build-local-reporter": "npm run unlink-pkg && npm run build && npm run link-pkg",
+    "testcafe-test": "testcafe chrome:headless ./tests/test.testcafe.ts --reporter reportportal-plugin",
     "e2e-tests": "npm run test ./tests/test.e2e.ts -- --rprotocol=http --rdomain=localhost:1234 --rlaunch-id=113 --rtoken=fff --rproject=tmp -g \"Running TestCafe Tests\"",
     "e2e-retry-tests": "npm run test ./tests/test.e2e.ts -- --rprotocol=http --rdomain=localhost:1234 --rlaunch-id=113 --rtoken=fff --rproject=retry -g \"Retry mechanism\"",
     "e2e-no-live-reporting-tests": "npm run test ./tests/test.e2e.ts -- --rprotocol=http --rdomain=localhost:1234 --rlaunch-id=113 --rtoken=fff --rproject=tmp --disable-live-reporting -g \"Running TestCafe Tests\"",
     "e2e-display-debug-logs-tests": "npm run test ./tests/test.e2e.ts -- --rprotocol=http --rdomain=localhost:1234 --rlaunch-id=113 --rtoken=fff --rproject=tmp --display-debug-logs -g \"Running TestCafe Tests\"",
-    "setup": "npm run build && npm link && npm link testcafe-reporter-reportportal-plugin",
-    "test-locally": "npm run setup && npm run e2e-tests && npm run e2e-retry-tests && npm run e2e-no-live-reporting-tests && npm run e2e-display-debug-logs-tests"
+    "run-e2e-tests": "npm run build-local-reporter && npm run e2e-tests",
+    "run-e2e-retry-tests": "npm run build-local-reporter && npm run e2e-retry-tests",
+    "run-e2e-no-live-reporting-tests": "npm run build-local-reporter && npm run e2e-no-live-reporting-tests",
+    "run-e2e-display-debug-logs-tests": "npm run build-local-reporter && npm run e2e-display-debug-logs-tests",
+    "run-full-e2e-tests": "npm run build-local-reporter && npm run e2e-tests && npm run e2e-retry-tests && npm run e2e-no-live-reporting-tests && npm run e2e-display-debug-logs-tests"
   },
   "keywords": [
     "testcafe",
@@ -28,29 +39,32 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.8",
+    "@babel/eslint-parser": "^7.16.0",
+    "@babel/plugin-transform-runtime": "^7.16.4",
     "@babel/preset-env": "^7.3.4",
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.1",
-    "babel-eslint": "^10.0.1",
     "callsite-record": "^3.2.0",
     "chai": "^4.3.3",
     "del": "^1.2.0",
     "dmock-server": "^1.5.5",
-    "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0",
-    "gulp-eslint": "^5.0.0",
-    "gulp-mocha": "^6.0.0",
+    "eslint": "6.8.0",
+    "jshint": "^2.13.1",
     "mocha": "^8.3.0",
     "normalize-newline": "^1.0.2",
     "read-file-relative": "^1.2.0",
     "testcafe": "^1.0.1",
-    "ts-node": "^9.1.1"
+    "ts-node": "^9.1.1",
+    "typescript": "^4.4.4"
   },
   "dependencies": {
+    "@babel/runtime": "^7.16.3",
+    "ansi-to-html": "^0.7.2",
     "axios": "^0.21.0",
-    "cli-argument-parser": "^0.3.4",
-    "fs": "0.0.1-security"
+    "cli-argument-parser": "^0.5.9",
+    "fs": "0.0.1-security",
+    "to-fast-properties": "^4.0.0"
   }
 }
